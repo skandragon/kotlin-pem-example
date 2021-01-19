@@ -52,21 +52,6 @@ class Main {
         }
     }
 
-    private fun printcert(cert: X509Certificate) {
-        val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
-
-        println("Certificate Owner: ${cert.subjectDN}")
-        println("Certificate Issuer: ${cert.issuerDN}")
-        println("Certificate Serial Number: ${cert.serialNumber}")
-        println("Certificate Algorithm: ${cert.sigAlgName}")
-        println("Certificate Version: ${cert.version}")
-        println("Certificate Valid From: ${dateFormat.format(cert.notBefore)} to ${dateFormat.format(cert.notAfter)}")
-        val authorityKeyIdentifier = Arrays.toString(cert.getExtensionValue("2.5.29.35"))
-        println("  Authority Key ID: ${authorityKeyIdentifier}")
-        val subjectKeyIdentifer = Arrays.toString(cert.getExtensionValue("2.5.29.14"))
-        println("  Key ID: ${subjectKeyIdentifer}")
-    }
-
     fun getSocketFactoryPEM(caCertificatePath: String, certificatePath: String, keyPath: String): SSLContext {
         val seq = ASN1Sequence.getInstance(readPEMFile(keyPath))
         val bcPrivateKey = RSAPrivateKey.getInstance(seq)
@@ -78,26 +63,24 @@ class Main {
 
         val caCert: X509Certificate = generateCertificateFromDER(readPEMFile(caCertificatePath))
 
-        //println("Loaded private key: ${key}")
-        //println("CA Certificate:")
-        //printcert(caCert)
-        //println()
-        //println("Certificate:")
-        //printcert(cert)
-
         val keystorePassword = "changeit".toCharArray()
+
         val keystore = KeyStore.getInstance("JKS")
         keystore.load(null)
         keystore.setCertificateEntry("oes-command", cert)
         keystore.setKeyEntry("oes-command", key, keystorePassword, arrayOf(cert, caCert))
-        keystore.setEntry("ca-cert", KeyStore.TrustedCertificateEntry(caCert), null)
+
+
+        val truststore = KeyStore.getInstance("JKS")
+        truststore.load(null)
+        truststore.setEntry("ca-cert", KeyStore.TrustedCertificateEntry(caCert), null)
 
         val kmf = KeyManagerFactory.getInstance("SunX509")
         kmf.init(keystore, keystorePassword)
         val km = kmf.keyManagers
 
         val tmf = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
-        tmf.init(keystore);
+        tmf.init(truststore);
 
         val context = SSLContext.getInstance("TLS")
         context.init(km, tmf.trustManagers, null)
