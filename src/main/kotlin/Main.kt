@@ -59,9 +59,9 @@ class Main {
         val algId = AlgorithmIdentifier(PKCSObjectIdentifiers.rsaEncryption, DERNull.INSTANCE)
         val key = converter.getPrivateKey(PrivateKeyInfo(algId, bcPrivateKey))
 
-        val cert: X509Certificate = generateCertificateFromDER(readPEMFile(certificatePath))
+        val cert = generateCertificateFromDER(readPEMFile(certificatePath))
 
-        val caCert: X509Certificate = generateCertificateFromDER(readPEMFile(caCertificatePath))
+        val caCert = generateCertificateFromDER(readPEMFile(caCertificatePath))
 
         val keystorePassword = "changeit".toCharArray()
 
