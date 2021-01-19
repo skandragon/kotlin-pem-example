@@ -6,6 +6,8 @@ plugins {
 
 dependencies {
     implementation(kotlin("stdlib-jdk8"))
+    implementation("org.bouncycastle:bcprov-jdk15on:1.68")
+    implementation("org.bouncycastle:bcpkix-jdk15on:1.68")
 }
 
 repositories {
