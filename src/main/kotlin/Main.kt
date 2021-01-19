@@ -70,14 +70,13 @@ class Main {
         keystore.setCertificateEntry("oes-command", cert)
         keystore.setKeyEntry("oes-command", key, keystorePassword, arrayOf(cert, caCert))
 
+        val kmf = KeyManagerFactory.getInstance("SunX509")
+        kmf.init(keystore, keystorePassword)
+        val km = kmf.keyManagers
 
         val truststore = KeyStore.getInstance("JKS")
         truststore.load(null)
         truststore.setEntry("ca-cert", KeyStore.TrustedCertificateEntry(caCert), null)
-
-        val kmf = KeyManagerFactory.getInstance("SunX509")
-        kmf.init(keystore, keystorePassword)
-        val km = kmf.keyManagers
 
         val tmf = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
         tmf.init(truststore);
